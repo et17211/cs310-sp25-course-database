@@ -8,10 +8,16 @@ import java.sql.Statement;
 
 public class RegistrationDAO {
     
-    private final DAOFactory daoFactory;
+    private static final String QUERY_REGISTER = "INSERT INTO registration values (?, ?, ?)";
+    private static final String DROP_COURSE = "DELETE FROM registration where studentid=? and termid=? and crn =?";
+    private static final String DELETE_ALL = "DELETE FROM registration where studentid=? and termid=?";
+    private static final String QUERY_LIST = "SELECT * FROM registration where studentid=? and termid=? ORDER BY crn";
     
+    private final DAOFactory daoFactory;
+  
     RegistrationDAO(DAOFactory daoFactory) {
         this.daoFactory = daoFactory;
+        
     }
     
     public boolean create(int studentid, int termid, int crn) {
@@ -25,10 +31,19 @@ public class RegistrationDAO {
             
             Connection conn = daoFactory.getConnection();
             
+            
             if (conn.isValid(0)) {
                 
                 // INSERT YOUR CODE HERE
+                ps = conn.prepareStatement(QUERY_REGISTER);
+                ps.setInt(1, studentid);
+                ps.setInt(2, termid);
+                ps.setInt(3, crn);
                 
+                int updateCount = ps.executeUpdate();
+                if(updateCount > 0){
+                   return true;                    
+                }
             }
             
         }
@@ -57,9 +72,20 @@ public class RegistrationDAO {
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
-                
+
                 // INSERT YOUR CODE HERE
+                ps = conn.prepareStatement(DROP_COURSE);
                 
+                ps.setInt(1, studentid);
+                ps.setInt(2, termid);
+                ps.setInt(3, crn);
+                
+
+                int updateCount = ps.executeUpdate();
+                
+                if(updateCount > 0){
+                    return true;
+                }
             }
             
         }
@@ -89,7 +115,15 @@ public class RegistrationDAO {
             if (conn.isValid(0)) {
                 
                 // INSERT YOUR CODE HERE
+                ps = conn.prepareStatement(DELETE_ALL);
+                ps.setInt(1, studentid);
+                ps.setInt(2, termid);
+       
                 
+                int updateCount = ps.executeUpdate();
+                if(updateCount > 0){
+                    return true;
+                }
             }
             
         }
@@ -120,7 +154,16 @@ public class RegistrationDAO {
             
             if (conn.isValid(0)) {
                 
-                // INSERT YOUR CODE HERE
+                // INSERT YOUR CODE HERE    
+                ps = conn.prepareStatement(QUERY_LIST);
+                
+                ps.setInt(1, studentid);
+                ps.setInt(2, termid);
+                
+                ps.execute();
+                rs = ps.getResultSet();
+                result = DAOUtility.getResultSetAsJson(rs);
+                    
                 
             }
             
